@@ -9,8 +9,6 @@ from albumentations import (
     RandomBrightnessContrast,
     Compose
 )
-from matplotlib import use
-from matplotlib.pyplot import grid
 import torch
 import skimage
 import numpy as np
