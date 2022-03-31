@@ -6,3 +6,4 @@
 /README.pdf
 /TrainingData
 /__pycache__
+*.pyc
