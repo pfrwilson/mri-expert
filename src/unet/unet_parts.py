@@ -1,3 +1,6 @@
+# from https://github.com/milesial/Pytorch-UNet
+# with permission under GNU licence
+
 """ Parts of the U-Net model """
 
 import torch
