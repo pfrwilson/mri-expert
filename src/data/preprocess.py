@@ -61,8 +61,6 @@ class Preprocessor:
         if self.use_augmentations:
             mri, seg = self.__apply_transform(self.augmentations, mri, seg)
         
-        mri, seg = self.__apply_transform(self.crop, mri, seg)
-        
         if self.to_tensor:
             mri = skimage.exposure.rescale_intensity(mri, out_range='float32')
             mri = np.expand_dims(mri, axis=0)
