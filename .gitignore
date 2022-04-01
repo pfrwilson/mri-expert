@@ -7,3 +7,5 @@
 /TrainingData
 /__pycache__
 *.pyc
+outputs
+wandb
