@@ -5,7 +5,9 @@ import wandb
 from torch import nn
 from torch.optim import Optimizer 
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import _LRScheduler
 import torch
+from typing import Optional
 from torch.nn.functional import cross_entropy
 
 
@@ -18,7 +20,7 @@ def train_epoch(epoch_idx: int, model: nn.Module, metrics: nn.Module,
     metrics = metrics.to(device)
     
     with tqdm(dataloader, desc=f'Train epoch {epoch_idx}') as pbar:
-        for (i, batch) in pbar:
+        for i, batch in enumerate(pbar):
         
             image, mask = batch
             image = image.to(device)
@@ -68,13 +70,20 @@ def eval_epoch(model: nn.Module, metrics: nn.Module,
     history = metrics.compute()
     metrics.reset()
     return history
+
     
-    
-def train(num_epochs, model: nn.Module, train_metrics: nn.Module,
-          eval_metrics: nn.Module,
-          optim: Optimizer, train_dataloader: DataLoader, 
-          val_dataloader: DataLoader, device,
-          accumulate_grad_batches=1, log_fn=None):
+def train(num_epochs, model: nn.Module, 
+          train_metrics: nn.Module,
+          eval_metrics: nn.Module, 
+          optim: Optimizer, 
+          train_dataloader: DataLoader, 
+          val_dataloader: DataLoader, 
+          device: torch.DeviceObjType,
+          accumulate_grad_batches=1, 
+          log_fn=None, 
+          scheduler: Optional[_LRScheduler]=None, 
+          epoch_end_callback=None,
+          ):
     
     for epoch in range(num_epochs):
         
@@ -89,7 +98,7 @@ def train(num_epochs, model: nn.Module, train_metrics: nn.Module,
         )
 
         if log_fn: 
-            log_fn(history)
+            log_fn({f'train/{k}': v for k, v in history.items()})
         
         history = eval_epoch(
             model, 
@@ -99,5 +108,12 @@ def train(num_epochs, model: nn.Module, train_metrics: nn.Module,
         )
         
         if log_fn: 
-            log_fn(history)
+            log_fn({f'val/{k}': v for k, v in history.items()})
+        
+        if epoch_end_callback:
+            epoch_end_callback(model, train_dataloader, val_dataloader, device)
+        
+        if scheduler:
+            scheduler.step()
+            log_fn({'lr', scheduler.get_last_lr()[0]})
     
