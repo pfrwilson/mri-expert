@@ -27,3 +27,22 @@ def resample_volume(volume, new_spacing, interpolator = sitk.sitkLinear):
                             volume.GetPixelID())
 
 
+def center_crop(out_size, array: np.ndarray):
+
+    out_h, out_w = out_size
+
+    assert array.ndim == 2
+
+    h, w = array.shape
+
+    assert out_h <= h and out_w <= w
+
+    center_x, center_y = h // 2, w // 2
+    left_x = center_x - out_h // 2
+    left_y = center_y - out_w // 2
+
+    out_image = array[left_x: left_x + out_h, left_y: left_y + out_w]
+
+    assert out_image.shape == (out_h, out_w)
+
+    return out_image
