@@ -3,32 +3,41 @@ from .dataset import PCASegmentationDataset
 from .preprocess import Preprocessor
 from torch.utils.data import DataLoader
 
-def dataloaders(root, batch_size, split_seed=0, val_size=5, target_size=224, 
-                     use_augmentations=True, **preprocessor_kwargs):
+def dataloaders(root, batch_size, split_seed=0, use_augmentations=True, 
+                    **preprocessor_kwargs):
     
-    train_preprocess = Preprocessor(target_size=target_size, use_augmentations=use_augmentations, 
-                              **preprocessor_kwargs)
+    train_preprocess = Preprocessor(use_augmentations=use_augmentations, 
+                                        **preprocessor_kwargs)
     
-    val_preprocess = Preprocessor(target_size=target_size, use_augmentations=False, 
-                              **preprocessor_kwargs)
+    val_preprocess = Preprocessor(use_augmentations=False, 
+                                    **preprocessor_kwargs)
     
+    test_preprocess = Preprocessor(use_augmentations=False, 
+                                    **preprocessor_kwargs)
+
     train = PCASegmentationDataset(
         root, 
         'train', 
-        preprocess=train_preprocess, 
+        transform=train_preprocess, 
         split_seed=split_seed, 
-        val_size=val_size,
     )
     
     val = PCASegmentationDataset(
         root,
         'val', 
-        preprocess=val_preprocess,
+        transform=val_preprocess,
         split_seed=split_seed, 
-        val_size=val_size
     )
     
+    test = PCASegmentationDataset(
+        root,
+        'test', 
+        transform=test_preprocess,
+        split_seed=split_seed, 
+    )
+
     return (DataLoader(train, batch_size, shuffle=True), 
-                DataLoader(val, batch_size, shuffle=False))
+                DataLoader(val, batch_size, shuffle=False), 
+                DataLoader(test, batch_size, shuffle=False))
 
 
