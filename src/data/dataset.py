@@ -79,10 +79,6 @@ class PCASegmentationDataset(Dataset):
     def __len__(self):
         return len(self.lookup_table)
         
-    def __del__(self):
-        if os.path.isdir(TEMP_STORAGE_DIR):
-            shutil.rmtree(TEMP_STORAGE_DIR)
-        
     @staticmethod
     def create_resampled_dataset(target_root, source_root, reference_spacing=(0.625, 0.625, 3.6)):
         """
