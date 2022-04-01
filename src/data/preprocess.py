@@ -21,7 +21,6 @@ class Preprocessor:
     """
     
     def __init__(self, 
-                 target_size=224, 
                  use_augmentations=True,
                  equalize_hist=True, 
                  random_rotate=True, 
@@ -32,7 +31,6 @@ class Preprocessor:
                  to_tensor=True
                 ):
     
-        self.crop = CenterCrop(target_size, target_size)
         self.eq = Equalize(always_apply=True) if equalize_hist else None
         self.normalize = Normalize((0.5, ), (0.25, ))
         
