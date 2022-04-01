@@ -10,7 +10,7 @@ def dice_score(mask, target_mask, reduce_across_batch=True):
     semantic segmentation
     """
     
-    intersection = torch.logical_and(mask * target_mask)
+    intersection = torch.logical_and(mask, target_mask)
     
     size_of_intersection = einops.reduce(
         intersection, 
@@ -45,7 +45,7 @@ def jaccard(mask: torch.Tensor, target_mask: torch.Tensor,
     segmentation task. 
     """
     
-    intersection = torch.logical_and(mask * target_mask)
+    intersection = torch.logical_and(mask, target_mask)
     union = torch.logical_or(mask, target_mask)
     
     size_of_intersection = einops.reduce(
@@ -59,6 +59,8 @@ def jaccard(mask: torch.Tensor, target_mask: torch.Tensor,
     
     if reduce_scores_across_batch:
         iou = torch.mean(iou)
+    
+    return iou
     
     
 class Metrics(torch.nn.Module):
