@@ -12,8 +12,6 @@ from sklearn.model_selection import train_test_split
 import shutil
 import einops
 
-
-
 REFERENCE_CASE = 33
 
 TEMP_STORAGE_DIR = os.path.join(
@@ -161,7 +159,7 @@ class PCASegmentationDataset(Dataset):
                 seg_array, 'slice h w -> slice', 'sum'
             )
             
-            best_slice_indices = np.argsort(prostate_volumes)[:use_k_best_slices]
+            best_slice_indices = np.argsort(prostate_volumes)[-use_k_best_slices:]
 
             for idx in best_slice_indices:
 
@@ -192,7 +190,7 @@ class PCASegmentationDataset(Dataset):
             def __enter__(self):
                 self.dataset.transform = None
 
-            def __exit__(self):
+            def __exit__(self, type, value, traceback):
                 self.dataset.transform = self.cached_transform
 
         return RawContext(self)
