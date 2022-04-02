@@ -1,5 +1,6 @@
 
 
+from typing import Tuple
 import SimpleITK as sitk
 import os
 import re
@@ -27,8 +28,16 @@ def resample_volume(volume, new_spacing, interpolator = sitk.sitkLinear):
                             volume.GetPixelID())
 
 
-def center_crop(out_size, array: np.ndarray):
+def center_crop(out_size: Tuple[int, int], array: np.ndarray) -> np.ndarray:
+    """Returns a center crop of the input array with the specified size. 
 
+    Args:
+        out_size (Tuple[int]): The output size (height, width) of the array.
+        array (np.ndarray): The image to crop
+
+    Returns:
+        (np.ndarray): The cropped image
+    """
     out_h, out_w = out_size
 
     assert array.ndim == 2
