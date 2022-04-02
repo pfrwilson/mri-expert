@@ -84,8 +84,10 @@ def main(config: DictConfig):
         wandb.save('model.pt')
     
     # ======== PREDICT ON TEST DATA ===
-    report = predict()
+    report = predict(model, test_dl.dataset, device)
         
+    from src.logging import log_report
+    log_report(report)
     
 if __name__ == '__main__':
     main()
