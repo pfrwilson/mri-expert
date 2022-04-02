@@ -112,6 +112,16 @@ class PCASegmentationDataset(Dataset):
             
         return mri, seg
 
+    def get_indices_for_case_number(self, case_num):
+        try:
+            indices = np.arange(len(self))
+            return list(indices[self.lookup_table.index.get_loc(case_num)])
+        except KeyError:
+            raise IndexError(f'case {case_num} not in dataset.')
+
+    def get_case_list(self):
+        return set(self.lookup_table.index.get_level_values(0))
+
     def __len__(self):
         return len(self.lookup_table)
         
