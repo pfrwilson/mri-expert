@@ -1,6 +1,6 @@
 
 import hydra
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 import wandb
 import torch
 
@@ -10,14 +10,9 @@ def main(config: DictConfig):
     # ======= LOGGING =======
     if config.log:
         wandb.init(
-            config=config, 
+            config=OmegaConf.to_object(config), 
             **config.wandb
         )
-    if config.log_images:
-        from src.logging import LogMasksCallback
-        callback = LogMasksCallback(num_images=4, choose_randomly=True)
-    else: 
-        callback = None 
         
     # ======= MODEL =========
     from src.unet import UNet
@@ -25,12 +20,10 @@ def main(config: DictConfig):
     
     # ======= DATA ==========
     from src.data import dataloaders
-    train_dl, val_dl = dataloaders(
+    train_dl, val_dl, test_dl = dataloaders(
         config.data.root, 
         config.data.batch_size, 
         config.data.split_seed, 
-        config.data.val_size, 
-        config.data.target_size, 
         config.data.use_augmentations, 
         **config.data.preprocessor_kwargs
     )
@@ -45,25 +38,43 @@ def main(config: DictConfig):
     else: 
         sched = None
         
+    # ======= CRITERION ========= 
+    from src.loss import SegmentationCriterion
+    criterion = SegmentationCriterion(config.dice_loss_weight)
+
+    # ======= EARLY STOPPING ====
+    from src.early_stopping import EarlyStopping
+    if config.early_stopping: 
+        early_stopping = EarlyStopping(
+            **config.early_stopping
+        )
+
     # ======= TRAINING ==========
     from src.train import train
     from src.metrics import Metrics
     
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if not config.gpu:
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    else:
+        device = torch.device(config.gpu)
     
     train(
         config.training.num_epochs, 
-        model,
+        model,          
+        criterion, 
+        Metrics(), 
         Metrics(), 
         Metrics(), 
         opt, 
         train_dl, 
         val_dl, 
+        test_dl, 
         device, 
         accumulate_grad_batches=config.training.accumulate_grad_batches, 
         log_fn = wandb.log if config.log else None, 
+        log_images=config.log_images, 
         scheduler = sched, 
-        epoch_end_callback=callback
+        early_stopping=early_stopping
     )
     
     if config.save_model:
