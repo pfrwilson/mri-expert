@@ -4,6 +4,8 @@ from omegaconf import DictConfig, OmegaConf
 import wandb
 import torch
 
+from src.predict import predict
+
 @hydra.main(config_path='configs', config_name='config')
 def main(config: DictConfig):
     
@@ -81,6 +83,9 @@ def main(config: DictConfig):
         torch.save('model.pt')
         wandb.save('model.pt')
     
+    # ======== PREDICT ON TEST DATA ===
+    report = predict()
         
+    
 if __name__ == '__main__':
     main()
