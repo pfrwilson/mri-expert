@@ -2,9 +2,12 @@
 import wandb
 from torch.utils.data import DataLoader
 import torch
+from .data.dataset import PCASegmentationDataset
 import skimage
 from .data.preprocess import Preprocessor
 import numpy as np
+from .predict import Report
+from dataclasses import asdict
 
 segmentation_classes = ['background', 'prostate']
 
@@ -64,3 +67,27 @@ def log_images_with_masks(name, model, dataloader, num_images, choose_randomly, 
 
     wandb.log({name: images})
 
+
+def log_report(report: Report):
+    
+    wandb.log(
+        {f'predict/{k}': v for k, v in asdict(report.overall_metrics)}
+    )
+    
+    for case, case_report in report.case_reports.items():
+        
+        case_images = []
+        
+        for data in case_report.slice_predictions:
+            
+            case_images.append( 
+                wb_mask(
+                    data.mri, 
+                    data.pred_mask, 
+                    data.true_mask
+                ) 
+            ) 
+            
+        wandb.log({f'case_{case}': case_images})
+            
+            
