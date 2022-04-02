@@ -1,7 +1,6 @@
 
 from albumentations import (
     Equalize, 
-    CenterCrop,
     GaussianBlur,
     GridDistortion, 
     HorizontalFlip,
@@ -30,7 +29,7 @@ class Preprocessor:
                  random_brightness=True,
                  to_tensor=True
                 ):
-    
+
         self.eq = Equalize(always_apply=True) if equalize_hist else None
         self.normalize = Normalize((0.5, ), (0.25, ))
         
