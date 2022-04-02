@@ -1,29 +1,35 @@
 
-log: no
+log: yes
 save_model: no
-log_images: no
+log_images: yes
+
+gpu: cuda:1
+
+dice_loss_weight: 1
+
+early_stopping:
+  patience: 7
+  delta: 0
+  path: /home/paulw/projects/mri-expert/checkpoint.pt
 
 wandb:
-  #name: 
   #dir: 
   entity: pfrwilson
   project: mri-expert
-  name: null
+  name: Test_run_0 
 
 data:
-  root: /Users/paulwilson/projects/medical_imaging/prostate-segmentation/TrainingData
-  batch_size: 8
+  root: /home/paulw/data/TrainingData
+  batch_size: 16
   split_seed: 0
-  val_size: 5
-  target_size: 224
   use_augmentations: yes
   preprocessor_kwargs: {}
 
-
 optim:
-  lr: 1e-3
-  scheduler: cosine
+  lr: 1e-5
+  scheduler: null
 
 training:
-  num_epochs: 1
-  accumulate_grad_batches: 1
+  num_epochs: 200
+  accumulate_grad_batches: 4
+
