@@ -1,5 +1,6 @@
 
 
+from typing import Optional
 from torch.utils.data import Dataset
 import os
 import SimpleITK as sitk
@@ -11,6 +12,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import shutil
 import einops
+from .preprocess import Preprocessor
 
 REFERENCE_CASE = 33
 
@@ -25,8 +27,9 @@ REFERENCE_SLICE_DIM = (224, 224)
 
 class PCASegmentationDataset(Dataset):
     
-    def __init__(self, root, split='train', transform=None,  
-                 split_seed=0):
+    def __init__(self, root, split='train', 
+                 transform: Optional[Preprocessor] = None,  
+                 split_seed=0, use_k_best_slices=5):
 
         self.root = root
         self.transform = transform
@@ -44,18 +47,21 @@ class PCASegmentationDataset(Dataset):
         os.mkdir(TEMP_STORAGE_DIR)
         print('Resampling images...')
         print(f'Saving slices as numpy files in {TEMP_STORAGE_DIR}')
-        self.create_processed_dataset()
+        self.create_processed_dataset(use_k_best_slices=use_k_best_slices)
 
         # Generate train and validation splits for cases
         cases = list(range(50))
 
+        # We want to ensure that the reference case ends up in the test set
         cases.remove(REFERENCE_CASE)
+        
         train_cases, test_cases = train_test_split(
             cases,
             test_size=9, 
             random_state=0      # fixed random state for deterministic test-split
         )
-        test_cases.append(REFERENCE_CASE)
+        test_cases.append(REFERENCE_CASE)  
+        
         train_cases, val_cases = train_test_split(
             train_cases,
             test_size=10, 
