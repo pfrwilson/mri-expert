@@ -3,6 +3,7 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import wandb
 import torch
+from datetime import datetime
 
 from src.predict import predict
 
@@ -10,9 +11,14 @@ from src.predict import predict
 def main(config: DictConfig):
     
     # ======= LOGGING =======
+    from datetime import datetime
+    time = datetime.now().strftime('%d_%b_%H:%M:%S')
+    name = f'exp_{time}'
+
     if config.log:
         wandb.init(
             config=OmegaConf.to_object(config), 
+            name=name,
             **config.wandb
         )
         
