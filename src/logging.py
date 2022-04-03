@@ -8,6 +8,9 @@ from .data.preprocess import Preprocessor
 import numpy as np
 from .predict import Report
 from dataclasses import asdict
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 segmentation_classes = ['background', 'prostate']
 
@@ -89,5 +92,33 @@ def log_report(report: Report):
             ) 
             
         wandb.log({f'case_{case}': case_images})
-            
-            
+        
+
+def log_mri_with_mask_overlay(report, case_num):
+
+    # Find slice with largest volume of true mask
+    idx_max = 0
+    max_volume = 0
+    for idx, slice_prediction in enumerate(report.case_reports[case_num].slice_predictions) :
+        seg = slice_prediction.true_mask
+        volume = np.sum(seg)
+        if volume > max_volume: 
+            idx_max = idx
+            max_volume = volume
+    slice_prediction = report.case_reports[case_num].slice_predictions[idx_max]
+
+    # Display the mask 
+    fig, ax = plt.subplots(1, 1, figsize=(4, 4))
+
+    ax.imshow(slice_prediction.mri, cmap='gray')
+    ax.imshow(np.where(slice_prediction.pred_mask == 1, 1, np.nan) )
+
+    ax.imshow(np.where(slice_prediction.pred_mask == 1, 1, np.nan), 
+                cmap=ListedColormap(['#72CC50']), alpha=0.9 )
+    plt.imshow(np.where(slice_prediction.true_mask == 1, 1, np.nan), 
+                cmap=ListedColormap(['blue']), alpha=0.5)
+
+    ax.set_axis_off()
+    ax.set_title(f'Case {case_num}')
+
+    plt.savefig(f'Case_{case_num}.jpeg')
