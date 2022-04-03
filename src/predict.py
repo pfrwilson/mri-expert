@@ -41,7 +41,9 @@ def predict(model: torch.nn.Module, dataset: PCASegmentationDataset, device: Opt
     
     if not device:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
+    
+    model = model.to(device)
+
     def patient_batch_generator():
         for case_num in dataset.get_case_list():
             case_indices = dataset.get_indices_for_case_number(case_num)
