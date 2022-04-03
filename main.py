@@ -4,6 +4,7 @@ from omegaconf import DictConfig, OmegaConf
 import wandb
 import torch
 from datetime import datetime
+import os
 
 from src.predict import predict
 
@@ -13,12 +14,13 @@ def main(config: DictConfig):
     # ======= LOGGING =======
     from datetime import datetime
     time = datetime.now().strftime('%d_%b_%H:%M:%S')
-    name = f'exp_{time}'
+    exp_name = f'exp_{time}'
 
     if config.log:
         wandb.init(
             config=OmegaConf.to_object(config), 
-            name=name,
+            name=exp_name,
+            reinit=True,
             **config.wandb
         )
         
@@ -53,7 +55,12 @@ def main(config: DictConfig):
     # ======= EARLY STOPPING ====
     from src.early_stopping import EarlyStopping
     if config.early_stopping: 
+        save_path = os.path.join(
+            os.getcwd(), 
+            'checkpoint.pt'
+        )
         early_stopping = EarlyStopping(
+            path=save_path, 
             **config.early_stopping
         )
 
@@ -90,10 +97,11 @@ def main(config: DictConfig):
         wandb.save('model.pt')
     
     # ======== PREDICT ON TEST DATA ===
-    report = predict(model, test_dl.dataset, device)
-        
-    from src.logging import log_report
-    log_report(report)
+    report = predict(model, test_dl.dataset, device) 
+    from src.logging import log_report, log_mri_with_mask_overlay
+    if config.log_images: 
+        log_report(report)
+    log_mri_with_mask_overlay(report, case_num=33)
     
 if __name__ == '__main__':
     main()
