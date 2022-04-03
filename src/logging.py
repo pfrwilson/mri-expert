@@ -71,7 +71,7 @@ def log_images_with_masks(name, model, dataloader, num_images, choose_randomly, 
 def log_report(report: Report):
     
     wandb.log(
-        {f'predict/{k}': v for k, v in asdict(report.overall_metrics)}
+        {f'predict/{k}': v for k, v in asdict(report.overall_metrics).items()}
     )
     
     for case, case_report in report.case_reports.items():
