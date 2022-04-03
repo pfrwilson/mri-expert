@@ -25,7 +25,7 @@ Our code is publicly available on github at [pfrwilson/mri-expert](https://www.g
 ```bash
 git clone https://github.com/pfrwilson/mri-expert
 pip install -r requirements.txt
-python main.py data.root="/path/to/TrainingData" log=False
+python main.py data.root="/path/to/TrainingData" log=False log_images=False
 ```
 
 If wandb is enabled and logged in, you can use `log=True` to log metrics to your wandb account under the project "mri-expert". 
