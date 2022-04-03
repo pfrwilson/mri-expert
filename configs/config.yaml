@@ -10,7 +10,6 @@ dice_loss_weight: .5
 early_stopping:
   patience: 10
   delta: 0
-  path: /home/paulw/projects/mri-expert/checkpoint.pt
 
 wandb:
   #dir: 
@@ -25,10 +24,10 @@ data:
   preprocessor_kwargs: {}
 
 optim:
-  lr: 1e-5
+  lr: 1e-4          # best 1e-4
   scheduler: null
 
 training:
   num_epochs: 200
-  accumulate_grad_batches: 4
+  accumulate_grad_batches: 1    # best 1
 
