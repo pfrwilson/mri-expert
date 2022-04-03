@@ -12,8 +12,6 @@ early_stopping:
   delta: 0
 
 wandb:
-  #dir: 
-  entity: pfrwilson
   project: mri-expert
 
 data:
