@@ -62,6 +62,9 @@ def predict(model: torch.nn.Module, dataset: PCASegmentationDataset, device: Opt
     for case_num, batch in patient_batch_generator():
         
         mri, seg, raw_mri = batch
+        mri = mri.to(device)
+        seg = seg.to(device)
+        raw_mri = raw_mri.to(device)
         
         with torch.no_grad():
             logits = model(mri)
